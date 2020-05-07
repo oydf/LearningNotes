@@ -11,8 +11,8 @@ void Pointers_And_References()
 	cout << "指针地址：" << &p << "  指针值：" << p<<" 指针指向的变量值：" << *p << endl;
 	cout << "引用地址：" << &r << " 引用值：" << r << endl;
 	cout << "变量地址：" << &a << " 变量值：" << a << endl;
-
 }
+
 //二级指针地址转换
 void SecondaryPointer()
 {
@@ -26,7 +26,70 @@ void SecondaryPointer()
 }
 
 
+//Const使用之道  const始终修饰离自己最近的一项
+class A
+{
+public:
+	int data;
+public:
+	A(int data) :data(data) {}
+	~A() {}
+	//不允许函数返回值为可修改的左值
+	const int& const_test1()
+	{
+		return data;
+	}
+
+	//不允许函数实参被修改
+	void const_re(const int& re)
+	{
+		//对re修改将不能通过编译
+		cout << re << endl;
+	}
+
+	//const 修饰成员函数， 根本上是修饰了this指针。const对象只能被const函数调用
+	void constfun() const
+	{
+		cout << "this is a const function" << endl;
+	}
+};
+
+//函数返回值是否为可修改的左值
+void const_return()
+{
+	A A_test(2);
+	//A_test.const_test1() = 100; 成员函数加上const修饰，不允许再被赋值
+	cout << A_test.const_test1() << endl;
+}
+
+//const对象只能被const函数使用
+void constFun()
+{
+	const A test(3);
+	test.constfun();
+}
+
+
+//static使用之道
+
+static int svar; //将全局变量使用static修饰，将可见范围限制在当前文件
+static int test() {} //将函数使用static修饰，将可见范围限制在当前文件
+int test2()
+{
+	int tvar; //将局部变量使用static修饰，生命周期提升至程序生命周期一致，只在当前函数可见
+}
+class B
+{
+public:
+	static int testvar; //static修饰类成员变量，数据保存在全局数据区，为类实例共享的数据
+	//static修饰成员函数，不含this指针，类使用，只能操作static成员变量
+	static int testfun1()
+	{
+		static int test3; //静态局部变量的初始化是原子操作的（c++11）
+	}
+};
+
 int main()
 {
-	SecondaryPointer();
+	constFun();
 }
