@@ -27,13 +27,17 @@ void SecondaryPointer()
 
 
 //Const使用之道  const始终修饰离自己最近的一项
-class A
+class A final //final防止类被继承
 {
 public:
 	int data;
 public:
 	A(int data) :data(data) {}
 	~A() {}
+	virtual void f() final //final防止虚函数被重写，override显式声明重写虚函数
+	{ 
+		cout << "Base::f" << endl; 
+	}
 	//不允许函数返回值为可修改的左值
 	const int& const_test1()
 	{
@@ -78,6 +82,8 @@ int test2()
 {
 	int tvar; //将局部变量使用static修饰，生命周期提升至程序生命周期一致，只在当前函数可见
 }
+
+
 class B
 {
 public:
@@ -86,6 +92,78 @@ public:
 	static int testfun1()
 	{
 		static int test3; //静态局部变量的初始化是原子操作的（c++11）
+	}
+};
+
+//类初始化与清理
+class C
+{
+public:
+	int c;
+public:
+	C()
+	{
+		cout << "无参构造函数" << endl;
+	}
+	C(int t)
+	{
+		cout << t << " 有参构造函数" << endl;
+	}
+	C(const C& t)
+	{
+		c = t.c;
+		cout << "拷贝构造函数" << endl;
+	}
+	~C()
+	{
+		cout << "析构函数" << endl;
+	}
+};
+//调用无参构造函数
+void testC1()
+{
+	C c;
+}
+//调用有参构函数
+void testC2()
+{
+	C c(10);
+	C c1 = C(20);//匿名对象显式初始化
+	C c2 = C(c1); //拷贝构造
+	C c3 = 10;// C c3 = C(10),隐式转换（单个参数时）
+	C c4 = c2;// C c4 = C(c2),隐式转换（单个参数时）
+}
+//构造拷贝函数被调用的时机
+//使用一个已经创建完毕的对象来初始化一个新对象
+//值传递的方式给函数参数传值
+//以值方式返回局部对象
+void testC3()
+{
+	C c1 = C(100);
+	C c2 = C(c1);
+	C c3 = c2;
+}
+void testC4(C c)
+{
+	cout << c.c << endl;
+}
+C testC4()
+{
+	C c1;
+	return c1;
+}
+
+//深浅拷贝：如果属性有在堆区开辟的，一定要自己提供拷贝构造函数，防止浅拷贝带来的问题(重复释放同一地址)
+class D
+{
+public:
+	int d;
+	int* p;
+public:
+	D(const D& d)
+	{
+		this->d = d.d;
+		p = new int(*d.p);
 	}
 };
 
