@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <memory>
 using namespace std;
 
 //指针和引用的区别：定义、参数传递、底层联系
@@ -78,7 +79,7 @@ void constFun()
 
 static int svar; //将全局变量使用static修饰，将可见范围限制在当前文件
 static int test() {} //将函数使用static修饰，将可见范围限制在当前文件
-int test2()
+void test2()
 {
 	int tvar; //将局部变量使用static修饰，生命周期提升至程序生命周期一致，只在当前函数可见
 }
@@ -167,7 +168,95 @@ public:
 	}
 };
 
+//重载
+void testE() {}
+int testE(int t) { return 1; }
+class E
+{
+	virtual int test() {}
+	int test2() {}
+};
+class F : public E
+{
+	//重写父类的虚函数
+	int test(){}
+	//隐藏父类同名函数
+	int test2() {}
+};
+
+//智能指针使用之道（应对内存泄漏）
+//原理解析（栈对象封装堆指针）
+class smart 
+{
+private:
+	int i;
+public:
+	smart(int i)
+	{
+		this->i = i;
+		cout << "smart build" << endl;
+	}
+	int value()
+	{
+		return i;
+	}
+	~smart()
+	{
+		cout << "smart destroy" << endl;
+	}
+};
+class smart_ptr1
+{
+private:
+	smart* p;
+public:
+	smart_ptr1(smart* p = nullptr)
+	{
+		this->p = p;
+	}
+	smart_ptr1(const smart_ptr1& obj)
+	{
+		p = obj.p;
+		const_cast<smart_ptr1&>(obj).p = nullptr;
+	}
+	smart_ptr1& operator = (const smart_ptr1& obj)
+	{
+		if (this != &obj)
+		{
+			delete this->p;
+			this->p = obj.p;
+			const_cast<smart_ptr1&>(obj).p = nullptr;
+		}
+		return *this;
+	}
+	smart* operator ->()
+	{
+		return p;
+	}
+	smart& operator * ()
+	{
+		return *(this->p);
+	}
+	bool isNull()
+	{
+		return (p == nullptr);
+	}
+	~smart_ptr1()
+	{
+		delete p;
+	}
+};
+void smart_test()
+{
+	smart_ptr1 p1 = new smart(1);
+	cout << p1->value() << endl;
+	smart_ptr1 p2 = p1;
+	cout << p1.isNull() << endl;
+	cout << p2->value() << endl;
+}
+
+
 int main()
 {
-	constFun();
+	smart_test();
 }
