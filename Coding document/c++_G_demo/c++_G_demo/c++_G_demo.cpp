@@ -253,10 +253,65 @@ void smart_test()
 	smart_ptr1 p2 = p1;
 	cout << p1.isNull() << endl;
 	cout << p2->value() << endl;
+	smart_ptr1 p13 = new smart(2);
 }
-
+//shared_ptr使用
+void share_ptr_test()
+{
+	shared_ptr<int> ptr1 = make_shared<int>(1);
+	shared_ptr<int> ptr2(ptr1);
+	cout << ptr1.use_count() << endl;
+	shared_ptr<int> ptr3 = make_shared<int>(2);
+	ptr2 = ptr3;
+	int* p = ptr3.get();
+	cout << ptr3.use_count() << endl;
+	cout << ptr1.use_count() << endl;
+}
+//unique_ptr使用
+void unique_ptr_test()
+{
+	unique_ptr<int> ptr1(new int(1));
+	unique_ptr<int> ptr2 = move(ptr1);
+	ptr2.release();
+}
+//weak_ptr使用，协助shared_ptr解除循环引用
+void weak_ptr_test()
+{
+	shared_ptr<int> ptr1 = make_shared<int>(10);
+	weak_ptr<int> ptr2(ptr1);
+	if (!ptr2.expired())
+	{
+		shared_ptr<int> ptr3 = ptr2.lock();
+		*ptr1 = 100;
+		cout << ptr2.use_count() << endl;
+	}
+}
+//循环引用示例
+class ptr1;
+class ptr2;
+class ptr1
+{
+public:
+	weak_ptr<ptr2> ptr;
+	//shared_ptr<ptr2> ptr;
+};
+class ptr2
+{
+public:
+	shared_ptr<ptr1> ptr;
+};
+void ptr_test()
+{
+	while (true)
+	{
+		shared_ptr<ptr1> p1(new ptr1());
+		shared_ptr<ptr2> p2(new ptr2());
+		p1->ptr = p2;
+		p2->ptr = p1;
+	}
+}
 
 int main()
 {
-	smart_test();
+	ptr_test();
 }
