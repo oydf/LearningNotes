@@ -1,5 +1,7 @@
 ﻿#include <iostream>
 #include <memory>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 //指针和引用的区别：定义、参数传递、底层联系
@@ -311,7 +313,24 @@ void ptr_test()
 	}
 }
 
+//Lambda表达式_匿名函数使用
+void lambda_test()
+{
+	vector<int> data = {3,5,6,1,2,9,8};
+	sort(data.begin(), data.end(), [](int a, int b) {return a > b; });
+}
+//定义的时候为匿名函数赋予的临时的别名
+void lambda_test2(void test(int a,int b))
+{
+	test(1, 2);
+}
+void lambda_test3()
+{
+	lambda_test2([](int a, int b) {cout << a << b << endl; });
+}
+
+
 int main()
 {
-	ptr_test();
+	lambda_test3();
 }
